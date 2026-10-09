@@ -4,6 +4,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { MunicipalidadesModule } from './municipalidades/municipalidades.module.js';
+import { LineasModule } from './lineas/lineas.module.js';
+import { EstacionesModule } from './estaciones/estaciones.module.js';
+import { ParqueosModule } from './parqueos/parqueos.module.js';
+import { BusesModule } from './buses/buses.module.js';
+import { PilotosModule } from './pilotos/pilotos.module.js';
 
 @Module({
   imports: [
@@ -21,6 +26,11 @@ import { MunicipalidadesModule } from './municipalidades/municipalidades.module.
       synchronize: true, // ¡Solo para desarrollo! Crea las tablas automáticamente basado en tus clases
     }),
     MunicipalidadesModule,
+    LineasModule,
+    EstacionesModule,
+    ParqueosModule,
+    BusesModule,
+    PilotosModule,
   ],
   controllers: [AppController],
   providers: [AppService],

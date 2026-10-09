@@ -16,8 +16,11 @@ export class Piloto {
   @Column({ type: 'text' })
   residencia: string;
 
-  @Column({ type: 'varchar', length: 50 })
-  comunicacion: string;
+  @Column({ type: 'varchar', length: 20 })
+  telefono: string;
+
+  @Column({ type: 'varchar', length: 150, nullable: true })
+  correo: string;
 
   // Un piloto puede tener asignado un bus (o varios en diferentes turnos)
   @OneToMany(() => Bus, bus => bus.piloto)
