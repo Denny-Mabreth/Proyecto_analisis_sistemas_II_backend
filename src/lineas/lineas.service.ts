@@ -30,6 +30,7 @@ export class LineasService {
 
     const nuevaLinea = this.lineasRepository.create({
       ...createLineaDto,
+      es_circuito: createLineaDto.es_circuito || false,
       municipalidad,
     });
     return this.lineasRepository.save(nuevaLinea);
@@ -41,7 +42,8 @@ export class LineasService {
         municipalidad: true,
         lineasEstaciones: {
           estacion: true
-        }
+        },
+        buses: true
       },
     });
   }
@@ -76,6 +78,7 @@ export class LineasService {
 
     if (updateLineaDto.nombre !== undefined) linea.nombre = updateLineaDto.nombre;
     if (updateLineaDto.distancia_km !== undefined) linea.distancia_km = updateLineaDto.distancia_km;
+    if (updateLineaDto.es_circuito !== undefined) linea.es_circuito = updateLineaDto.es_circuito;
 
     return this.lineasRepository.save(linea);
   }
@@ -118,6 +121,20 @@ export class LineasService {
 
   async remove(id: number): Promise<void> {
     const linea = await this.findOne(id);
+    
+    // 1. Eliminar asociaciones con estaciones manualmente para evitar error de FK (23503)
+    if (linea.lineasEstaciones && linea.lineasEstaciones.length > 0) {
+      await this.lineaEstacionRepository.remove(linea.lineasEstaciones);
+    }
+
+    // 2. Desvincular buses (SET NULL)
+    if (linea.buses && linea.buses.length > 0) {
+      // Como no tenemos el repositorio de buses aquí, removemos la línea desde el objeto y guardamos si estuviera en cascada.
+      // Lo mejor es aislar la eliminación usando query builder en el propio lineasRepository para los buses, o simplemente
+      // dejar que el FK de bus actúe. Para asegurar, lo hacemos por BD directamente:
+      await this.lineasRepository.query(`UPDATE buses SET "lineaId" = NULL WHERE "lineaId" = $1`, [id]);
+    }
+
     await this.lineasRepository.remove(linea);
   }
 }

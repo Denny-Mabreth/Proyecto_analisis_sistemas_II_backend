@@ -14,6 +14,6 @@ export class Guardia {
   dpi: string;
 
   // Cada guardia está asignado a un acceso de una estación
-  @ManyToOne(() => Acceso, acceso => acceso.guardias)
-  acceso: Relation<Acceso>;
+  @ManyToOne(() => Acceso, acceso => acceso.guardias, { nullable: true })
+  acceso?: Relation<Acceso>;
 }

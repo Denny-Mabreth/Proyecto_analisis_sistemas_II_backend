@@ -9,6 +9,9 @@ import { EstacionesModule } from './estaciones/estaciones.module.js';
 import { ParqueosModule } from './parqueos/parqueos.module.js';
 import { BusesModule } from './buses/buses.module.js';
 import { PilotosModule } from './pilotos/pilotos.module.js';
+import { AccesosModule } from './accesos/accesos.module.js';
+import { GuardiasModule } from './guardias/guardias.module.js';
+import { MonitoreoModule } from './monitoreo/monitoreo.module.js';
 
 @Module({
   imports: [
@@ -31,6 +34,9 @@ import { PilotosModule } from './pilotos/pilotos.module.js';
     ParqueosModule,
     BusesModule,
     PilotosModule,
+    AccesosModule,
+    GuardiasModule,
+    MonitoreoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

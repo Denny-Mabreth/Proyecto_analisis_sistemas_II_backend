@@ -20,7 +20,7 @@ export class Bus {
   pasajeros_actuales: number;
 
   // "no pudiendo suceder que un bus esté asignado a más de una línea, pero sí que no esté asignado a ninguna"
-  @ManyToOne(() => Linea, linea => linea.buses, { nullable: true })
+  @ManyToOne(() => Linea, linea => linea.buses, { nullable: true, onDelete: 'SET NULL' })
   linea: Relation<Linea>;
 
   // "Un bus puede cambiar de parqueo, pero no quedar sin él"

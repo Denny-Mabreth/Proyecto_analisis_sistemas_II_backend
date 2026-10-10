@@ -12,7 +12,7 @@ export class LineaEstacion {
   @Column({ type: 'int' })
   orden: number;
 
-  @ManyToOne(() => Linea, linea => linea.lineasEstaciones)
+  @ManyToOne(() => Linea, linea => linea.lineasEstaciones, { onDelete: 'CASCADE' })
   linea: Relation<Linea>;
 
   @ManyToOne(() => Estacion, estacion => estacion.lineasEstaciones)

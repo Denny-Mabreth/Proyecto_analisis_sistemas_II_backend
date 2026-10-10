@@ -15,6 +15,9 @@ export class Linea {
   @Column({ type: 'float', default: 0 })
   distancia_km: number;
 
+  @Column({ type: 'boolean', default: false })
+  es_circuito: boolean;
+
   // Cada Línea pertenece a una municipalidad
   @ManyToOne(() => Municipalidad)
   municipalidad: Relation<Municipalidad>;

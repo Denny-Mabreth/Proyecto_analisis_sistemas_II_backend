@@ -21,7 +21,7 @@ export class BusesService {
     private pilotoRepository: Repository<Piloto>,
   ) {}
 
-  private async validarMaximoBusesLinea(lineaId: number): Promise<Linea> {
+  private async validarMaximoBusesLinea(lineaId: number, currentBusId?: number): Promise<Linea> {
     const linea = await this.lineaRepository.findOne({
       where: { id: lineaId },
       relations: {
@@ -32,11 +32,16 @@ export class BusesService {
     if (!linea) throw new NotFoundException(`Línea con ID ${lineaId} no encontrada`);
 
     const numEstaciones = linea.lineasEstaciones ? linea.lineasEstaciones.length : 0;
-    const maxBuses = numEstaciones * 2;
+    // Para evitar deadlocks al iniciar una línea (0 estaciones = 0 buses max), damos un mínimo inicial de 2.
+    const maxBuses = Math.max(2, numEstaciones * 2);
     
-    if (linea.buses && linea.buses.length >= maxBuses) {
+    const busesAsignados = currentBusId 
+      ? (linea.buses || []).filter(b => b.id !== currentBusId)
+      : (linea.buses || []);
+
+    if (busesAsignados.length >= maxBuses) {
       throw new BadRequestException(
-        `La línea no puede aceptar más buses. Límite alcanzado (${maxBuses} buses máximo, que es el doble de sus ${numEstaciones} estaciones)`
+        `La línea no puede aceptar más buses. Límite alcanzado (${maxBuses} buses máximo, basado en sus ${numEstaciones} estaciones)`
       );
     }
     return linea;
@@ -106,7 +111,7 @@ export class BusesService {
       if (updateBusDto.lineaId === null) {
         bus.linea = null as any;
       } else {
-        const linea = await this.validarMaximoBusesLinea(updateBusDto.lineaId);
+        const linea = await this.validarMaximoBusesLinea(updateBusDto.lineaId, id);
         bus.linea = linea;
       }
     }
