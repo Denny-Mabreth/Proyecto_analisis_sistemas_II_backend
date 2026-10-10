@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Estacion } from './entities/estacion.entity.js';
@@ -71,6 +71,13 @@ export class EstacionesService {
 
   async remove(id: number): Promise<void> {
     const estacion = await this.findOne(id);
-    await this.estacionesRepository.remove(estacion);
+    try {
+      await this.estacionesRepository.remove(estacion);
+    } catch (error: any) {
+      if (error.code === '23503') {
+        throw new BadRequestException('No se puede eliminar la estación porque tiene parqueos, líneas o accesos asociados.');
+      }
+      throw error;
+    }
   }
 }

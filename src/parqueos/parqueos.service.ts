@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Parqueo } from './entities/parqueo.entity.js';
@@ -75,6 +75,13 @@ export class ParqueosService {
 
   async remove(id: number): Promise<void> {
     const parqueo = await this.findOne(id);
-    await this.parqueosRepository.remove(parqueo);
+    try {
+      await this.parqueosRepository.remove(parqueo);
+    } catch (error: any) {
+      if (error.code === '23503') {
+        throw new BadRequestException('No se puede eliminar el parqueo porque está referenciado por otros registros (ej. buses asignados).');
+      }
+      throw error;
+    }
   }
 }

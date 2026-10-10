@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Piloto } from './entities/piloto.entity.js';
@@ -40,6 +40,13 @@ export class PilotosService {
 
   async remove(id: number): Promise<void> {
     const piloto = await this.findOne(id);
-    await this.pilotosRepository.remove(piloto);
+    try {
+      await this.pilotosRepository.remove(piloto);
+    } catch (error: any) {
+      if (error.code === '23503') {
+        throw new BadRequestException('No se puede eliminar el piloto porque está asignado a uno o más buses.');
+      }
+      throw error;
+    }
   }
 }

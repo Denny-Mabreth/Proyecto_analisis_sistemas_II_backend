@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Acceso } from './entities/acceso.entity.js';
@@ -54,6 +54,13 @@ export class AccesosService {
 
   async remove(id: number): Promise<void> {
     const acceso = await this.findOne(id);
-    await this.accesosRepository.remove(acceso);
+    try {
+      await this.accesosRepository.remove(acceso);
+    } catch (error: any) {
+      if (error.code === '23503') {
+        throw new BadRequestException('No se puede eliminar el acceso porque tiene guardias u otros registros dependientes.');
+      }
+      throw error;
+    }
   }
 }

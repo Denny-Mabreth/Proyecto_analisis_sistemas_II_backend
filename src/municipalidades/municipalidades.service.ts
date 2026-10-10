@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Municipalidad } from './entities/municipalidad.entity.js';
@@ -37,6 +37,13 @@ export class MunicipalidadesService {
 
   async remove(id: number) {
     const municipalidad = await this.findOne(id);
-    return this.municipalidadRepository.remove(municipalidad);
+    try {
+      return await this.municipalidadRepository.remove(municipalidad);
+    } catch (error: any) {
+      if (error.code === '23503') {
+        throw new BadRequestException('No se puede eliminar la municipalidad porque tiene líneas o estaciones asignadas.');
+      }
+      throw error;
+    }
   }
 }
