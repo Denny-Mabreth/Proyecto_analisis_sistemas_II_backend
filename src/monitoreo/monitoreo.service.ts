@@ -11,12 +11,11 @@ const UMBRAL_ALERTA_ESTACION = CAPACIDAD_ESTACION * 1.5;
 /** Regla del enunciado: bus con menos del 25% de ocupación espera 5 minutos más. */
 const UMBRAL_BUS_VACIO = 0.25;
 const MINUTOS_ESPERA_EXTRA = 5;
-/** 1 tick = 1 minuto simulado. */
 const TICK_MS = 2000;
 const TICKS_POR_TRAMO = 5;
 const TICKS_PARADA = 2;
 const MAX_EVENTOS = 40;
-const REFRESCO_TOPOLOGIA_TICKS = 5;
+const REFRESCO_TOPOLOGIA_TICKS = 1;
 
 type EstadoBus = 'EN_RUTA' | 'EN_ESTACION' | 'ESPERANDO';
 
@@ -86,18 +85,26 @@ export class MonitoreoService implements OnModuleInit, OnModuleDestroy {
 
   // ------------------------------------------------------------------ Simulación
 
+  private tickCounter = 0;
+
   private async tick() {
-    if (this.pausado) return;
+    this.tickCounter++;
     try {
-      if (this.minuto % REFRESCO_TOPOLOGIA_TICKS === 0) {
+      if (this.tickCounter % REFRESCO_TOPOLOGIA_TICKS === 0) {
         await this.refrescarTopologia();
       }
+    } catch (e) {
+      console.error('[Monitoreo] error al refrescar topologia', e);
+    }
+    
+    if (this.pausado) return;
+    
+    try {
       this.minuto++;
       this.generarPasajeros();
       for (const bus of this.buses.values()) this.avanzarBus(bus);
       this.evaluarAlertas();
     } catch (e) {
-      // El monitoreo nunca debe tumbar el servidor
       console.error('[Monitoreo] error en tick', e);
     }
   }
@@ -121,6 +128,7 @@ export class MonitoreoService implements OnModuleInit, OnModuleDestroy {
         nombre: l.nombre,
         es_circuito: l.es_circuito,
         estaciones: [...(l.lineasEstaciones ?? [])]
+          .filter(le => le.estacion != null) // Protección contra estaciones huérfanas
           .sort((a, b) => a.orden - b.orden)
           .map((le) => ({ id: le.estacion.id, nombre: le.estacion.nombre })),
         busIds: (l.buses ?? []).map((b) => b.id),
