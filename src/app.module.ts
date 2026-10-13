@@ -12,6 +12,7 @@ import { PilotosModule } from './pilotos/pilotos.module.js';
 import { AccesosModule } from './accesos/accesos.module.js';
 import { GuardiasModule } from './guardias/guardias.module.js';
 import { MonitoreoModule } from './monitoreo/monitoreo.module.js';
+import { UsuariosModule } from './usuarios/usuarios.module.js';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { MonitoreoModule } from './monitoreo/monitoreo.module.js';
     AccesosModule,
     GuardiasModule,
     MonitoreoModule,
+    UsuariosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
